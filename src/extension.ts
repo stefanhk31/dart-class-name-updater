@@ -56,7 +56,8 @@ export function activate(context: vscode.ExtensionContext) {
 	const newText = newDocument.getText(newRange).replace(
 		new RegExp(`(${currentClassName}|${casing.camel(currentClassName)}|${casing.pascal(currentClassName)}|${casing.snake(currentClassName)}|${casing.constant(currentClassName)})`, 'g'),
 		(match) => casing[casing.of(match) as keyof CaseObject](newName)
-	  );    newEditor.edit((editBuilder) => editBuilder.replace(newRange, newText));
+	  );    
+	newEditor.edit((editBuilder) => editBuilder.replace(newRange, newText));
   });
 
   context.subscriptions.push(disposable);
