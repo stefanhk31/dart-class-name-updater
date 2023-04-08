@@ -17,7 +17,15 @@
         "command": "dart-class-name-updater.updateAllInstancesOfClass",
         "title": "Update all instances of class name"
       }
-    ]
+    ],
+    "languages": [
+      {
+        "id": "dart",
+        "extensions": [
+          ".dart"
+        ]
+      }
+    ]    
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

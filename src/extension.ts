@@ -17,12 +17,16 @@ interface CaseObject {
 }
 
 export function activate(context: vscode.ExtensionContext) {
+  
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider('dart', new DartClassNameUpdater(), {
       providedCodeActionKinds: DartClassNameUpdater.providedCodeActionKinds
     }));
 
   const updateAllInstancesOfClassNameCommand = vscode.commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', async () => {
+    vscode.languages.registerCodeActionsProvider('dart', new DartClassNameUpdater(), {
+      providedCodeActionKinds: DartClassNameUpdater.providedCodeActionKinds
+    });
     const editor = vscode.window.activeTextEditor;
     if (editor) {
       const range = editor.document.validateRange(new vscode.Range(editor.selection.start, editor.selection.end));
@@ -31,8 +35,12 @@ export function activate(context: vscode.ExtensionContext) {
         editor.document.uri,
         range
       ) as vscode.CodeAction[];
-      if (codeActions.length === 1 && codeActions[0].command) {
-        await vscode.commands.executeCommand(codeActions[0].command.command, ...codeActions[0].command.arguments || []);
+      if (codeActions && codeActions.length > 0 && codeActions[0].command) {
+        const argumentsArray = codeActions[0].edit ? [codeActions[0].edit] : [];
+        await vscode.commands.executeCommand(
+          codeActions[0].command.command,
+          ...argumentsArray
+        );
       }
     }
   });
@@ -42,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
 /**
  * Provides code actions for changing all project references to a Dart class name. 
  */
-export class DartClassNameUpdater implements vscode.CodeActionProvider {
+export class DartClassNameUpdater implements vscode.CodeActionProvider {  
   public static readonly providedCodeActionKinds = [
     vscode.CodeActionKind.QuickFix
   ];
@@ -64,14 +72,9 @@ export class DartClassNameUpdater implements vscode.CodeActionProvider {
       return fix;
     }
 
-    // need to go through and identify which parts of the class
-    // should be which case -e.g., import filename needs snake,
-    // class name needs pascal
     const casing: CaseObject = require('case');
     const newNamePascal = this.inputToPascalCase(input);
     const newNameSnake = casing.snake(newNamePascal);
-    
-
 
     const currentText = document.getText();
     const classNameRegExp = /class\s+(\w+)/;
@@ -82,7 +85,7 @@ export class DartClassNameUpdater implements vscode.CodeActionProvider {
 
     const currentClassName = match[1];
     const pascalRegex = new RegExp(`(${casing.pascal(currentClassName)})`, 'g');
-    const snakeRegex =  new RegExp(`(${casing.snake(currentClassName)})`, 'g');
+    const snakeRegex = new RegExp(`(${casing.snake(currentClassName)})`, 'g');
 
     const currentUri = document.uri;
     const currentPath = currentUri.path;
@@ -92,7 +95,7 @@ export class DartClassNameUpdater implements vscode.CodeActionProvider {
 
     fix.edit = new vscode.WorkspaceEdit();
     fix.edit.renameFile(currentUri, newUri);
-    
+
     const newText = document.getText().replace(
       pascalRegex, (match) => casing.pascal(newNamePascal)
     ).replace(
