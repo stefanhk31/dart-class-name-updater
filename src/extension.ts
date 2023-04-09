@@ -18,11 +18,6 @@ interface CaseObject {
 
 export function activate(context: vscode.ExtensionContext) {
   
-  context.subscriptions.push(
-    vscode.languages.registerCodeActionsProvider('dart', new DartClassNameUpdater(), {
-      providedCodeActionKinds: DartClassNameUpdater.providedCodeActionKinds
-    }));
-
   const updateAllInstancesOfClassNameCommand = vscode.commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', async () => {
     vscode.languages.registerCodeActionsProvider('dart', new DartClassNameUpdater(), {
       providedCodeActionKinds: DartClassNameUpdater.providedCodeActionKinds
@@ -35,8 +30,11 @@ export function activate(context: vscode.ExtensionContext) {
         editor.document.uri,
         range
       ) as vscode.CodeAction[];
-      if (codeActions && codeActions.length > 0 && codeActions[0].command) {
-        const argumentsArray = codeActions[0].edit ? [codeActions[0].edit] : [];
+      if (codeActions 
+          && codeActions.length > 0 
+          && codeActions[0].command 
+          && codeActions[0].edit) {
+        const argumentsArray = [codeActions[0].edit];
         await vscode.commands.executeCommand(
           codeActions[0].command.command,
           ...argumentsArray
@@ -57,10 +55,22 @@ export class DartClassNameUpdater implements vscode.CodeActionProvider {
 
   async provideCodeActions(document: vscode.TextDocument, range: vscode.Range | vscode.Selection, context: vscode.CodeActionContext, token: vscode.CancellationToken): Promise<(vscode.CodeAction | vscode.Command)[]> {
     const updateAllInstancesOfClassName = await this.createFix(document, range, 'Update all instances of class name');
-    return [updateAllInstancesOfClassName];
+    return [
+      {
+        "command": "dart-class-name-updater.updateAllInstancesOfClass",
+        "title": "Change class name"
+      }
+    ].map((c) => {
+      let action = new vscode.CodeAction(c.title, vscode.CodeActionKind.Refactor);
+      action.command = {
+        command: c.command,
+        title: c.title,
+      };
+      return action;
+    });;
   }
   resolveCodeAction?(codeAction: vscode.CodeAction, token: vscode.CancellationToken): vscode.ProviderResult<vscode.CodeAction> {
-    throw new Error('Method not implemented.');
+    return codeAction;
   }
 
   private async createFix(document: vscode.TextDocument, range: vscode.Range | vscode.Selection, title: string): Promise<vscode.CodeAction> {
@@ -105,6 +115,8 @@ export class DartClassNameUpdater implements vscode.CodeActionProvider {
     fix.edit.replace(document.uri, range, newText);
     return fix;
   }
+
+  
 
   private inputToPascalCase(input: string): string {
     return input.split(' ')

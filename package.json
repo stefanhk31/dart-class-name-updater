@@ -25,7 +25,15 @@
           ".dart"
         ]
       }
-    ]    
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "when": "editorLangId == dart",
+          "command": "dart-class-name-updater.updateAllInstancesOfClass"
+        }
+      ]
+    }    
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
