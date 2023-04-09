@@ -18,30 +18,7 @@ interface CaseObject {
 
 export function activate(context: vscode.ExtensionContext) {
   
-  const updateAllInstancesOfClassNameCommand = vscode.commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', async () => {
-    vscode.languages.registerCodeActionsProvider('dart', new DartClassNameUpdater(), {
-      providedCodeActionKinds: DartClassNameUpdater.providedCodeActionKinds
-    });
-    const editor = vscode.window.activeTextEditor;
-    if (editor) {
-      const range = editor.document.validateRange(new vscode.Range(editor.selection.start, editor.selection.end));
-      const codeActions = await vscode.commands.executeCommand(
-        'vscode.executeCodeActionProvider',
-        editor.document.uri,
-        range
-      ) as vscode.CodeAction[];
-      if (codeActions 
-          && codeActions.length > 0 
-          && codeActions[0].command 
-          && codeActions[0].edit) {
-        const argumentsArray = [codeActions[0].edit];
-        await vscode.commands.executeCommand(
-          codeActions[0].command.command,
-          ...argumentsArray
-        );
-      }
-    }
-  });
+  const updateAllInstancesOfClassNameCommand = vscode.commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', updateAllInstancesOfClassName);
   context.subscriptions.push(updateAllInstancesOfClassNameCommand);
 }
 
@@ -50,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
  */
 export class DartClassNameUpdater implements vscode.CodeActionProvider {  
   public static readonly providedCodeActionKinds = [
-    vscode.CodeActionKind.QuickFix
+    vscode.CodeActionKind.Refactor
   ];
 
   async provideCodeActions(document: vscode.TextDocument, range: vscode.Range | vscode.Selection, context: vscode.CodeActionContext, token: vscode.CancellationToken): Promise<(vscode.CodeAction | vscode.Command)[]> {
@@ -74,7 +51,7 @@ export class DartClassNameUpdater implements vscode.CodeActionProvider {
   }
 
   private async createFix(document: vscode.TextDocument, range: vscode.Range | vscode.Selection, title: string): Promise<vscode.CodeAction> {
-    let fix = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
+    let fix = new vscode.CodeAction(title, vscode.CodeActionKind.Refactor);
 
     const input = await vscode.window.showInputBox({ prompt: 'Enter new class name' });
 
@@ -124,3 +101,55 @@ export class DartClassNameUpdater implements vscode.CodeActionProvider {
       .join('');
   }
 }
+
+export const updateAllInstancesOfClassName = async () => {
+  const input = await vscode.window.showInputBox({ prompt: 'Enter new class name' });
+  if (!input) {
+    return;
+  }
+
+  const casing: CaseObject = require('case');
+  const newNamePascal = inputToPascalCase(input);
+  const newNameSnake = casing.snake(newNamePascal);
+
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+    return;
+  }
+
+  const currentText = editor.document.getText();
+  const classNameRegExp = /class\s+(\w+)/;
+  const match = classNameRegExp.exec(currentText);
+  if (!match) {
+    return;
+  }
+
+  const currentClassName = match[1];
+  const pascalRegex = new RegExp(`(${casing.pascal(currentClassName)})`, 'g');
+  const snakeRegex = new RegExp(`(${casing.snake(currentClassName)})`, 'g');
+
+  const currentUri = editor.document.uri;
+  const currentPath = currentUri.path;
+  const currentFolderUri = vscode.Uri.file(currentPath.substring(0, currentPath.lastIndexOf('/')));
+  const newFilename = currentPath.replace(/\/(\w+)\.dart$/, `/${newNameSnake}.dart`);
+  const newUri = currentFolderUri.with({ path: newFilename });
+
+  await vscode.workspace.fs.rename(currentUri, newUri);
+
+  const newDocument = await vscode.workspace.openTextDocument(newUri);
+  const newEditor = await vscode.window.showTextDocument(newDocument);
+  const newRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(newDocument.lineCount, 0));
+
+  const newText = newDocument.getText().replace(
+    pascalRegex, (match) => casing.pascal(newNamePascal)
+  ).replace(
+    snakeRegex, (match) => casing.snake(newNameSnake)
+  );
+  newEditor.edit((editBuilder) => editBuilder.replace(newRange, newText));
+};
+
+export const inputToPascalCase = (input: string) => {
+  return input.split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('');
+};
