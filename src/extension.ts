@@ -18,17 +18,6 @@ interface CaseObject {
   of: typeof Case.of;
 }
 
-export function activate(context: ExtensionContext) {
-  const updateAllInstancesOfClassNameCommand = commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', () => {
-    let editor = window.activeTextEditor;
-    if (editor && editor.document.languageId === 'dart') {
-      console.log("Put your code here to execute the command.");
-    }
-  });
-
-  context.subscriptions.push(updateAllInstancesOfClassNameCommand);
-}
-
 /**
  * Provides code actions for changing all project references to a Dart class name. 
  */
@@ -160,3 +149,13 @@ export const inputToPascalCase = (input: string) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 };
+
+export function activate(context: ExtensionContext) {
+  const updateAllInstancesOfClassNameCommand = commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', () => {
+    let editor = window.activeTextEditor;
+    if (editor && editor.document.languageId === 'dart') {
+      updateAllInstancesOfClassName();
+    }
+  });
+  context.subscriptions.push(updateAllInstancesOfClassNameCommand);
+}
