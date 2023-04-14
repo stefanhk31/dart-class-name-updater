@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import * as Case from 'case';
+import { commands, ExtensionContext, window, languages } from 'vscode';
+
 
 interface CaseObject {
   camel: typeof Case.camel;
@@ -16,9 +18,14 @@ interface CaseObject {
   of: typeof Case.of;
 }
 
-export function activate(context: vscode.ExtensionContext) {
-  
-  const updateAllInstancesOfClassNameCommand = vscode.commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', updateAllInstancesOfClassName);
+export function activate(context: ExtensionContext) {
+  const updateAllInstancesOfClassNameCommand = commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', () => {
+    let editor = window.activeTextEditor;
+    if (editor && editor.document.languageId === 'dart') {
+      console.log("Put your code here to execute the command.");
+    }
+  });
+
   context.subscriptions.push(updateAllInstancesOfClassNameCommand);
 }
 

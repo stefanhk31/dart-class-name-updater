@@ -15,7 +15,7 @@
     "commands": [
       {
         "command": "dart-class-name-updater.updateAllInstancesOfClass",
-        "title": "Update all instances of class name"
+        "title": "Rename Dart File, Class & Instances"
       }
     ],
     "languages": [
@@ -27,10 +27,11 @@
       }
     ],
     "menus": {
-      "commandPalette": [
+      "explorer/context": [
         {
-          "when": "editorLangId == dart",
-          "command": "dart-class-name-updater.updateAllInstancesOfClass"
+          "when": "resourceLangId == dart",
+          "command": "dart-class-name-updater.updateAllInstancesOfClass",
+          "group": "7_modification@1"
         }
       ]
     }    
