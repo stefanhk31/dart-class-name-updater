@@ -89,8 +89,6 @@ export class DartClassNameUpdater implements vscode.CodeActionProvider {
     return fix;
   }
 
-  
-
   private inputToPascalCase(input: string): string {
     return input.split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -125,23 +123,14 @@ export const updateAllInstancesOfClassName = async () => {
   const snakeRegex = new RegExp(`(${casing.snake(currentClassName)})`, 'g');
 
   const currentUri = editor.document.uri;
-  const currentPath = currentUri.path;
-  const currentFolderUri = vscode.Uri.file(currentPath.substring(0, currentPath.lastIndexOf('/')));
-  const newFilename = currentPath.replace(/\/(\w+)\.dart$/, `/${newNameSnake}.dart`);
-  const newUri = currentFolderUri.with({ path: newFilename });
+  const newUri = await renameFile(currentUri, newNameSnake);
 
-  await vscode.workspace.fs.rename(currentUri, newUri);
+  await updateInstances(newUri, pascalRegex, casing, newNamePascal, snakeRegex, newNameSnake);
 
-  const newDocument = await vscode.workspace.openTextDocument(newUri);
-  const newEditor = await vscode.window.showTextDocument(newDocument);
-  const newRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(newDocument.lineCount, 0));
-
-  const newText = newDocument.getText().replace(
-    pascalRegex, (match) => casing.pascal(newNamePascal)
-  ).replace(
-    snakeRegex, (match) => casing.snake(newNameSnake)
-  );
-  newEditor.edit((editBuilder) => editBuilder.replace(newRange, newText));
+  const allDartFiles = await vscode.workspace.findFiles('**/*.{dart}');
+  allDartFiles.forEach(async uri => {
+    await updateInstances(uri, pascalRegex, casing, newNamePascal, snakeRegex, newNameSnake);
+  });
 };
 
 export const inputToPascalCase = (input: string) => {
@@ -149,6 +138,29 @@ export const inputToPascalCase = (input: string) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 };
+
+async function updateInstances(newUri: vscode.Uri, pascalRegex: RegExp, casing: CaseObject, newNamePascal: string, snakeRegex: RegExp, newNameSnake: string) {
+  const newDocument = await vscode.workspace.openTextDocument(newUri);
+  const newEditor = await vscode.window.showTextDocument(newDocument);
+  const newRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(newDocument.lineCount, 0));
+
+  const newText = newDocument.getText().replace(
+    pascalRegex, (_) => casing.pascal(newNamePascal)
+  ).replace(
+    snakeRegex, (_) => casing.snake(newNameSnake)
+  );
+  newEditor.edit((editBuilder) => editBuilder.replace(newRange, newText));
+}
+
+async function renameFile(currentUri: vscode.Uri, newNameSnake: string) {
+  const currentPath = currentUri.path;
+  const currentFolderUri = vscode.Uri.file(currentPath.substring(0, currentPath.lastIndexOf('/')));
+  const newFilename = currentPath.replace(/\/(\w+)\.dart$/, `/${newNameSnake}.dart`);
+  const newUri = currentFolderUri.with({ path: newFilename });
+
+  await vscode.workspace.fs.rename(currentUri, newUri);
+  return newUri;
+}
 
 export function activate(context: ExtensionContext) {
   const updateAllInstancesOfClassNameCommand = commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', () => {
