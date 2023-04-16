@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import * as Case from 'case';
+import { commands, ExtensionContext, window, languages } from 'vscode';
+
 
 interface CaseObject {
   camel: typeof Case.camel;
@@ -14,12 +16,6 @@ interface CaseObject {
   title: typeof Case.title;
   upper: typeof Case.upper;
   of: typeof Case.of;
-}
-
-export function activate(context: vscode.ExtensionContext) {
-  
-  const updateAllInstancesOfClassNameCommand = vscode.commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', updateAllInstancesOfClassName);
-  context.subscriptions.push(updateAllInstancesOfClassNameCommand);
 }
 
 /**
@@ -153,3 +149,13 @@ export const inputToPascalCase = (input: string) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 };
+
+export function activate(context: ExtensionContext) {
+  const updateAllInstancesOfClassNameCommand = commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', () => {
+    let editor = window.activeTextEditor;
+    if (editor && editor.document.languageId === 'dart') {
+      updateAllInstancesOfClassName();
+    }
+  });
+  context.subscriptions.push(updateAllInstancesOfClassNameCommand);
+}
