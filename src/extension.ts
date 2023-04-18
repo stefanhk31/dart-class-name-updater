@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as Case from 'case';
 import { commands, ExtensionContext, window, languages } from 'vscode';
+import { execFile } from 'child_process';
 
 
 interface CaseObject {
@@ -102,6 +103,27 @@ export const updateAllInstancesOfClassName = async () => {
     return;
   }
 
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  const excludedFolders = ['**/.**', '**/build/**', '**/android**', '**/android**', '**/ios**', '**/macos**', '**/linux**', '**/windows**', '**/web**'];
+  
+
+  //go through all the folders and add the .gitignore files to the excluded folders
+  //the workspace may have 1 to many folders in it and thus might have many instances of gitignore files
+  if (workspaceFolders) {
+    workspaceFolders.forEach(async (folder) => {
+      const gitignoreUri = vscode.Uri.joinPath(folder.uri, '.gitignore');
+      try {
+        const gitignoreContent = await vscode.workspace.fs.readFile(gitignoreUri);
+        const ignoredPatterns = gitignoreContent.toString().split('\n')
+          .filter(line => line.trim() !== '' && !line.startsWith('#'))
+          .map(line => vscode.workspace.asRelativePath(vscode.Uri.joinPath(folder.uri, line.trim()), true));
+        excludedFolders.push(...ignoredPatterns);
+      } catch (error) {
+        // ignore if .gitignore doesn't exist
+      }
+    });
+  }
+
   const casing: CaseObject = require('case');
   const newNamePascal = inputToPascalCase(input);
   const newNameSnake = casing.snake(newNamePascal);
@@ -127,7 +149,8 @@ export const updateAllInstancesOfClassName = async () => {
 
   await updateInstances(newUri, pascalRegex, casing, newNamePascal, snakeRegex, newNameSnake);
 
-  const allDartFiles = await vscode.workspace.findFiles('**/*.{dart}');
+  
+const allDartFiles = await vscode.workspace.findFiles( '**/*.dart',`{${excludedFolders.join(',')}}`);
   allDartFiles.forEach(async uri => {
     await updateInstances(uri, pascalRegex, casing, newNamePascal, snakeRegex, newNameSnake);
   });
