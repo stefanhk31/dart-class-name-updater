@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as Case from 'case';
 import { commands, ExtensionContext, window, languages } from 'vscode';
+import { execFile } from 'child_process';
 
 
 interface CaseObject {
@@ -21,7 +22,7 @@ interface CaseObject {
 /**
  * Provides code actions for changing all project references to a Dart class name. 
  */
-export class DartClassNameUpdater implements vscode.CodeActionProvider {  
+export class DartClassNameUpdater implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKinds = [
     vscode.CodeActionKind.Refactor
   ];
@@ -102,6 +103,7 @@ export const updateAllInstancesOfClassName = async () => {
     return;
   }
 
+
   const casing: CaseObject = require('case');
   const newNamePascal = inputToPascalCase(input);
   const newNameSnake = casing.snake(newNamePascal);
@@ -127,10 +129,12 @@ export const updateAllInstancesOfClassName = async () => {
 
   await updateInstances(newUri, pascalRegex, casing, newNamePascal, snakeRegex, newNameSnake);
 
-  const allDartFiles = await vscode.workspace.findFiles('**/*.{dart}');
-  allDartFiles.forEach(async uri => {
+  const excludedFolders = getExcludedFolders().join(',');
+  const allDartFiles = await vscode.workspace.findFiles('**/*.dart', excludedFolders);
+  for (const uri of allDartFiles) {
     await updateInstances(uri, pascalRegex, casing, newNamePascal, snakeRegex, newNameSnake);
-  });
+  }
+  await vscode.workspace.saveAll();
 };
 
 export const inputToPascalCase = (input: string) => {
@@ -138,6 +142,32 @@ export const inputToPascalCase = (input: string) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 };
+
+function getExcludedFolders(): string[] {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  const excludedFolders = ['**/.**', '**/build/**', '**/android**', '**/android**', '**/ios**', '**/macos**', '**/linux**', '**/windows**', '**/web**'];
+
+  if (!workspaceFolders) {
+    return [];
+  }
+
+  //go through all the folders and add the .gitignore files to the excluded folders
+  //the workspace may have 1 to many folders in it and thus might have many instances of gitignore files
+  workspaceFolders.forEach(async (folder) => {
+    const gitignoreUri = vscode.Uri.joinPath(folder.uri, '.gitignore');
+    try {
+      const gitignoreContent = await vscode.workspace.fs.readFile(gitignoreUri);
+      const ignoredPatterns = gitignoreContent.toString().split('\n')
+        .filter(line => line.trim() !== '' && !line.startsWith('#'))
+        .map(line => vscode.workspace.asRelativePath(vscode.Uri.joinPath(folder.uri, line.trim()), true));
+      excludedFolders.push(...ignoredPatterns);
+    } catch (error) {
+      return [];
+      // ignore if .gitignore doesn't exist
+    }
+  });
+  return excludedFolders;
+}
 
 async function updateInstances(newUri: vscode.Uri, pascalRegex: RegExp, casing: CaseObject, newNamePascal: string, snakeRegex: RegExp, newNameSnake: string) {
   const newDocument = await vscode.workspace.openTextDocument(newUri);
