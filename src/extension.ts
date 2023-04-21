@@ -114,7 +114,8 @@ export const updateAllInstancesOfClassName = async () => {
   }
 
   const currentText = editor.document.getText();
-  const classNameRegExp = /class\s+(\w+)/;
+  const classNameRegExp = /(class|enum|mixin|typedef|extension)\s+(\w+)/;
+
   const match = classNameRegExp.exec(currentText);
   if (!match) {
     return;
@@ -124,6 +125,7 @@ export const updateAllInstancesOfClassName = async () => {
   const pascalRegex = new RegExp(`(${casing.pascal(currentClassName)})`, 'g');
   const snakeRegex = new RegExp(`(${casing.snake(currentClassName)})`, 'g');
 
+  //TODO: this assumes the file is on disc, what if it hasn't been saved yet, can we check currently unsaved files?
   const currentUri = editor.document.uri;
   const newUri = await renameFile(currentUri, newNameSnake);
 
