@@ -108,12 +108,16 @@ export const updateAllInstancesOfClassName = async () => {
   const newNamePascal = inputToPascalCase(input);
   const newNameSnake = casing.snake(newNamePascal);
 
+
+  //TODO: if there is no file open in the editor then we can't update anything, this means if we try to change things from the file explorer context menu(where we currently change things) then nothing will happen.
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
     return;
   }
 
   const currentText = editor.document.getText();
+
+  //TODO: this currently returns every single file in the project....
   const classNameRegExp = /(class|enum|mixin|typedef|extension)\s+(\w+)/;
 
   const match = classNameRegExp.exec(currentText);
