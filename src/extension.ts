@@ -52,7 +52,6 @@ export const updateAllInstancesOfClassName = async (uri: vscode.Uri) => {
   for (const uri of allDartFiles) {
     await updateInstances(uri, pascalRegex, casing, newNamePascal, snakeRegex, newNameSnake);
   }
-  await vscode.workspace.saveAll();
 };
 
 export const inputToPascalCase = (input: string) => {
@@ -86,7 +85,7 @@ function getExcludedFolders(): string[] {
   });
   return excludedFolders;
 }
-
+//TODO: Refactor this to use  await vscode.workspace.fs.writeFile(uri, Buffer.from(newContents)); rather than opening up a new editor window to make edits
 async function updateInstances(newUri: vscode.Uri, pascalRegex: RegExp, casing: CaseObject, newNamePascal: string, snakeRegex: RegExp, newNameSnake: string) {
   const newDocument = await vscode.workspace.openTextDocument(newUri);
   const newEditor = await vscode.window.showTextDocument(newDocument);
@@ -98,8 +97,20 @@ async function updateInstances(newUri: vscode.Uri, pascalRegex: RegExp, casing: 
     snakeRegex, (_) => casing.snake(newNameSnake)
   );
   newEditor.edit((editBuilder) => editBuilder.replace(newRange, newText));
+  
+  // Save the updated file
+  await newDocument.save();
+
+  // Close the editor if the current file is not the same as the file we are renaming
+  if (!currentFileIsNameSake(newUri, newNameSnake)) {
+    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+  }
 }
 
+//returns true if the current file is the same as the file we are renaming
+function currentFileIsNameSake(newUri: vscode.Uri, newNameSnake: string) {
+  return newUri.toString().includes(newNameSnake);
+}
 async function renameFile(currentUri: vscode.Uri, newNameSnake: string) {
   const currentPath = currentUri.path;
   const currentFolderUri = vscode.Uri.file(currentPath.substring(0, currentPath.lastIndexOf('/')));
