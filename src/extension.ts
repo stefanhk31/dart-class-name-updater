@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as Case from 'case';
-import { commands, ExtensionContext, window, languages } from 'vscode';
-import { execFile } from 'child_process';
+import { commands, ExtensionContext, window } from 'vscode';
 
 
 interface CaseObject {
@@ -19,7 +18,7 @@ interface CaseObject {
   of: typeof Case.of;
 }
 
-export const updateAllInstancesOfClassName = async () => {
+export const updateAllInstancesOfClassName = async (uri: vscode.Uri) => {
   const input = await vscode.window.showInputBox({ prompt: 'Enter new class name' });
   if (!input) {
     return;
@@ -30,13 +29,8 @@ export const updateAllInstancesOfClassName = async () => {
   const newNamePascal = inputToPascalCase(input);
   const newNameSnake = casing.snake(newNamePascal);
 
-
-  //TODO: if there is no file open in the editor then we can't update anything, this means if we try to change things from the file explorer context menu(where we currently change things) then nothing will happen.
-  const editor = vscode.window.activeTextEditor;
-  if (!editor) {
-    return;
-  }
-
+  const document = await vscode.workspace.openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(document);
   const currentText = editor.document.getText();
 
   //TODO: this currently returns every single file in the project....
@@ -121,11 +115,8 @@ async function renameFile(currentUri: vscode.Uri, newNameSnake: string) {
 }
 
 export function activate(context: ExtensionContext) {
-  const updateAllInstancesOfClassNameCommand = commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', () => {
-    let editor = window.activeTextEditor;
-    if (editor && editor.document.languageId === 'dart') {
-      updateAllInstancesOfClassName();
-    }
+  const updateAllInstancesOfClassNameCommand = commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', (uri: vscode.Uri) => {
+      updateAllInstancesOfClassName(uri);    
   });
   context.subscriptions.push(updateAllInstancesOfClassNameCommand);
 }
