@@ -33,6 +33,13 @@
           "command": "dart-class-name-updater.updateAllInstancesOfClass",
           "group": "7_modification@1"
         }
+      ],
+      "editor/context": [
+        {
+          "when": "resourceLangId == dart",
+          "command": "dart-class-name-updater.updateAllInstancesOfClass",
+          "group": "1_modification@1"
+        }
       ]
     }    
   },
