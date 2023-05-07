@@ -102,15 +102,15 @@ async function updateInstances(newUri: vscode.Uri, pascalRegex: RegExp, casing: 
   await newDocument.save();
 
   // Close the editor if the current file is not the same as the file we are renaming
-  if (!currentFileIsNameSake(newUri, newNameSnake)) {
+  if (!uriMatchesFileName(newUri, newNameSnake)) {
     await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
   }
 }
 
-//returns true if the current file is the same as the file we are renaming
-function currentFileIsNameSake(newUri: vscode.Uri, newNameSnake: string) {
-  return newUri.toString().includes(newNameSnake);
+function uriMatchesFileName(uri: vscode.Uri, fileName: string) {
+  return uri.toString().includes(fileName);
 }
+
 async function renameFile(currentUri: vscode.Uri, newNameSnake: string) {
   const currentPath = currentUri.path;
   const currentFolderUri = vscode.Uri.file(currentPath.substring(0, currentPath.lastIndexOf('/')));
