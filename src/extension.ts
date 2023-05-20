@@ -85,30 +85,24 @@ function getExcludedFolders(): string[] {
   });
   return excludedFolders;
 }
-//TODO: Refactor this to use  await vscode.workspace.fs.writeFile(uri, Buffer.from(newContents)); rather than opening up a new editor window to make edits
-async function updateInstances(newUri: vscode.Uri, pascalRegex: RegExp, casing: CaseObject, newNamePascal: string, snakeRegex: RegExp, newNameSnake: string) {
-  const newDocument = await vscode.workspace.openTextDocument(newUri);
-  const newEditor = await vscode.window.showTextDocument(newDocument);
-  const newRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(newDocument.lineCount, 0));
 
-  const newText = newDocument.getText().replace(
+async function updateInstances(
+    newUri: vscode.Uri,
+   pascalRegex: RegExp, 
+   casing: CaseObject, 
+   newNamePascal: string, 
+   snakeRegex: RegExp, 
+   newNameSnake: string,
+   ) {
+  const fileContents = (await vscode.workspace.fs.readFile(newUri)).toString();
+
+  const newContents = fileContents.replace(
     pascalRegex, (_) => casing.pascal(newNamePascal)
   ).replace(
     snakeRegex, (_) => casing.snake(newNameSnake)
   );
-  newEditor.edit((editBuilder) => editBuilder.replace(newRange, newText));
   
-  // Save the updated file
-  await newDocument.save();
-
-  // Close the editor if the current file is not the same as the file we are renaming
-  if (!uriMatchesFileName(newUri, newNameSnake)) {
-    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
-  }
-}
-
-function uriMatchesFileName(uri: vscode.Uri, fileName: string) {
-  return uri.toString().includes(fileName);
+  await vscode.workspace.fs.writeFile(newUri, Buffer.from(newContents));
 }
 
 async function renameFile(currentUri: vscode.Uri, newNameSnake: string) {
