@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as Case from 'case';
 import { CaseObject } from '../utils/case-object';
 
 
@@ -28,11 +27,11 @@ export class NameUpdater {
         return newUri;
     }
 
-    public async updateInstances(
-    ): Promise<boolean> {
+    public async updateInstances(uri: vscode.Uri)
+    : Promise<boolean> {
         const pascalRegex = new RegExp(`(${this.casing.pascal(this.className)})`, 'g');
         const snakeRegex = new RegExp(`(${this.casing.snake(this.className)})`, 'g');
-        const fileContents = (await vscode.workspace.fs.readFile(this.uri)).toString();
+        const fileContents = (await vscode.workspace.fs.readFile(uri)).toString();
 
         const newContents = fileContents.replace(
             pascalRegex, (_) => this.casing.pascal(this.newClassName)
@@ -40,7 +39,7 @@ export class NameUpdater {
             snakeRegex, (_) => this.casing.snake(this.newClassNameSnakeCase)
         );
 
-        await vscode.workspace.fs.writeFile(this.uri, Buffer.from(newContents));
+        await vscode.workspace.fs.writeFile(uri, Buffer.from(newContents));
 
         return true;
     }

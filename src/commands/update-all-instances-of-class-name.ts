@@ -27,13 +27,12 @@ export const updateAllInstancesOfClassName = async (uri: vscode.Uri) => {
     const currentUri = editor.document.uri;
     const updater = new NameUpdater(currentUri, currentClassName, newNamePascal);
 
-    await updater.renameFile();
-  
-    await updater.updateInstances();
+    const newUri = await updater.renameFile();
+    await updater.updateInstances(newUri);
   
     const excludedFolders = getExcludedFolders().join(',');
     const allDartFiles = await vscode.workspace.findFiles('**/*.dart', excludedFolders);
     for (const uri of allDartFiles) {
-      await updater.updateInstances();
+      await updater.updateInstances(uri);
     }
   };
