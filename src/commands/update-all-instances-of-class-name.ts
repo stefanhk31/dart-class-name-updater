@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-import * as Case from 'case';
-import { commands, ExtensionContext, window } from 'vscode';
-import { CaseObject } from '../utils/case-object';
 import { inputToPascalCase } from '../utils/input-to-pascal-case';
 import { getExcludedFolders } from '../utils/get-excluded-folders';
 import { NameUpdater } from '../services/name-updater';
