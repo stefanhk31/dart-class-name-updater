@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
+import { instance, mock, when } from 'ts-mockito';
 import { group } from 'console';
 
 suite('Extension Test Suite', () => {
@@ -8,8 +9,10 @@ suite('Extension Test Suite', () => {
 
 	group('activate', () => {
 		test('activating adds command to subscriptions', async () => {
-			let context: vscode.ExtensionContext;
-			context = (global as any).testExtensionContext;
+			let mockContext:vscode.ExtensionContext = mock();
+			let context = instance(mockContext);
+			when(context.subscriptions).thenReturn([]);
+			
 			extension.activate(context);
 	
 			assert.equal(context.subscriptions.length, 1);
