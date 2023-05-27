@@ -2,24 +2,22 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
 import { instance, mock, when } from 'ts-mockito';
-import { group } from 'console';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
-
-	group('activate', () => {
+	suite('activate', () => {
 		test('activating adds command to subscriptions', async () => {
-			let mockContext:vscode.ExtensionContext = mock();
+			let mockContext: vscode.ExtensionContext = mock();
+			when(mockContext.subscriptions).thenReturn([]);
 			let context = instance(mockContext);
-			when(context.subscriptions).thenReturn([]);
-			
+	
 			extension.activate(context);
 	
 			assert.equal(context.subscriptions.length, 1);
 		});
 	});
 
-	group('commands', () => {
+	suite('commands', () => {
 		test('updating calls rename file', async () => {
 			assert.equal(true, false);
 		});
@@ -33,7 +31,7 @@ suite('Extension Test Suite', () => {
 		});
 	});
 
-	group('name updater', () => {
+	suite('name updater', () => {
 		test('can be instantiated', async () => {
 			assert.equal(true, false);
 		});
@@ -51,28 +49,28 @@ suite('Extension Test Suite', () => {
 		});
 	});
 
-	group('utils', () => {
-		group('case object', () => {
+	suite('utils', () => {
+		suite('case object', () => {
 			test('can implement case object interface', async () => {
 				assert.equal(true, false);
 			});
 		});
 
-		group('get excluded folders', () => {
+		suite('get excluded folders', () => {
 			test('can get excluded folders', async () => {
 				assert.equal(true, false);
 			});
-	
+
 			test('excludes folders in .gitignore file', async () => {
-				assert.equal(true, false); 
+				assert.equal(true, false);
 			});
-	
+
 			test('returns empty array when workspace is empty', async () => {
-				assert.equal(true, false); 
+				assert.equal(true, false);
 			});
 		});
 
-		group('input to pascal case', () => {
+		suite('input to pascal case', () => {
 			test('can convert input to pascal case', async () => {
 				assert.equal(true, false);
 			});
