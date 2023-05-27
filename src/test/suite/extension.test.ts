@@ -1,7 +1,9 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
-import { instance, mock, when } from 'ts-mockito';
+import { instance, mock, spy, when } from 'ts-mockito';
+import { updateAllInstancesOfClassName } from '../../commands/update-all-instances-of-class-name';
+import { Uri } from 'vscode';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -18,16 +20,38 @@ suite('Extension Test Suite', () => {
 	});
 
 	suite('commands', () => {
-		test('updating calls rename file', async () => {
-			assert.equal(true, false);
-		});
+		suite('update all instances of class name', () => {
+			test('calls show input box', async () => {
+				assert.equal(true, false);
+			});
 
-		test('updating calls update instances on the updated file', async () => {
-			assert.equal(true, false);
-		});
+			test('calls input to pascal case', async () => {
+				assert.equal(true, false);
+			});
 
-		test('updating calls update instances on all files in project', async () => {
-			assert.equal(true, false);
+			test('calls open text document', async () => {
+				assert.equal(true, false);
+			});
+
+			test('calls get name regex', async () => {
+				assert.equal(true, false);
+			});
+
+			test('instantiates name updater', async () => {
+
+			});
+
+			test('calls rename file', () => {
+
+			});
+
+			test('calls update instances on the updated file', () => {
+
+			});
+
+			test('calls update instances on all files in project', async () => {
+				assert.equal(true, false);
+			});
 		});
 	});
 

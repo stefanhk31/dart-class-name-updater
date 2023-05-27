@@ -4,15 +4,18 @@ import { getExcludedFolders } from '../utils/get-excluded-folders';
 import { NameUpdater } from '../services/name-updater';
 
 export const updateAllInstancesOfClassName = async (uri: vscode.Uri) => {
-    const input = await vscode.window.showInputBox({ prompt: 'Enter new class name' });
+    const input = await showInputBox('Enter new class name');
     if (!input) {
       return;
     }
   
     const newNamePascal = inputToPascalCase(input);
   
-    const document = await vscode.workspace.openTextDocument(uri);
-    const editor = await vscode.window.showTextDocument(document);
+    const editor = await openTextDocument(uri);
+    if (!editor) {
+      return;
+    }
+
     const currentText = editor.document.getText();
     const classNameRegExp = /class\s+(\w+)/;
     const match = classNameRegExp.exec(currentText);
@@ -33,3 +36,18 @@ export const updateAllInstancesOfClassName = async (uri: vscode.Uri) => {
       await updater.updateInstances(uri);
     }
   };
+
+async function showInputBox(prompt: string): Promise<string | undefined> {
+  return await vscode.window.showInputBox({ prompt: prompt });
+}
+
+async function openTextDocument(uri: vscode.Uri): Promise<vscode.TextEditor | undefined> {
+  const document = await vscode.workspace.openTextDocument(uri);
+  return await vscode.window.showTextDocument(document);
+}
+
+function getNameRegex(editor: vscode.TextEditor): RegExpExecArray | null {
+  const currentText = editor.document.getText();
+  const classNameRegExp = /class\s+(\w+)/;
+  return classNameRegExp.exec(currentText);
+}
