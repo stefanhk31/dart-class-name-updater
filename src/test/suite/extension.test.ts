@@ -52,16 +52,30 @@ suite('Extension Test Suite', () => {
 	});
 
 	group('utils', () => {
-		test('can implement case object interface', async () => {
-			assert.equal(true, false);
+		group('case object', () => {
+			test('can implement case object interface', async () => {
+				assert.equal(true, false);
+			});
 		});
 
-		test('can get excluded folders', async () => {
-			assert.equal(true, false);
+		group('get excluded folders', () => {
+			test('can get excluded folders', async () => {
+				assert.equal(true, false);
+			});
+	
+			test('excludes folders in .gitignore file', async () => {
+				assert.equal(true, false); 
+			});
+	
+			test('returns empty array when workspace is empty', async () => {
+				assert.equal(true, false); 
+			});
 		});
 
-		test('can convert input to pascal case', async () => {
-			assert.equal(true, false);
+		group('input to pascal case', () => {
+			test('can convert input to pascal case', async () => {
+				assert.equal(true, false);
+			});
 		});
 	});
 });
