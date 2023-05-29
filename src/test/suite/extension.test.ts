@@ -1,9 +1,10 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
-import { instance, mock, spy, when } from 'ts-mockito';
-import { updateAllInstancesOfClassName } from '../../commands/update-all-instances-of-class-name';
+import { anyOfClass, anyString, anything, instance, mock, spy, verify, when } from 'ts-mockito';
+import { CommandManager } from '../../commands/update-all-instances-of-class-name';
 import { Uri } from 'vscode';
+import { setup } from 'mocha';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -21,8 +22,26 @@ suite('Extension Test Suite', () => {
 
 	suite('commands', () => {
 		suite('update all instances of class name', () => {
+			let commandManager: CommandManager;
+			let commandManagerSpy: CommandManager;
+			const testUri = vscode.Uri.parse('test');
+			
+			setup(() => {
+				commandManager = new CommandManager();
+				commandManagerSpy = spy(commandManager);
+				let mockTextEditor: vscode.TextEditor = mock();
+				let mockDocument: vscode.TextDocument = mock();
+				when(mockTextEditor.document).thenReturn(mockDocument);
+				when(mockDocument.getText).thenReturn(() => 'text');
+				when(commandManagerSpy.showInputBox(anyString()))
+					.thenResolve('mocked input');
+				when(commandManagerSpy.openTextDocument(anything()))
+					.thenResolve(mockTextEditor);
+			});
+			
 			test('calls show input box', async () => {
-				assert.equal(true, false);
+				await commandManager.updateCommand(testUri);
+				verify(commandManagerSpy.showInputBox(anyString())).called();
 			});
 
 			test('calls input to pascal case', async () => {
@@ -38,15 +57,15 @@ suite('Extension Test Suite', () => {
 			});
 
 			test('instantiates name updater', async () => {
-
+				assert.equal(true, false);
 			});
 
 			test('calls rename file', () => {
-
+				assert.equal(true, false);
 			});
 
 			test('calls update instances on the updated file', () => {
-
+				assert.equal(true, false);
 			});
 
 			test('calls update instances on all files in project', async () => {
