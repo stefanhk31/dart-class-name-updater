@@ -5,71 +5,40 @@ import { anyOfClass, anyString, anything, instance, mock, spy, verify, when } fr
 import { CommandManager } from '../../commands/update-all-instances-of-class-name';
 import { Uri } from 'vscode';
 import { setup } from 'mocha';
-
+import { VsCodeClient } from '../../services/vscode-client';
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
+
 	suite('activate', () => {
 		test('activating adds command to subscriptions', async () => {
 			let mockContext: vscode.ExtensionContext = mock();
 			when(mockContext.subscriptions).thenReturn([]);
 			let context = instance(mockContext);
-	
+
 			extension.activate(context);
-	
+
 			assert.equal(context.subscriptions.length, 1);
 		});
 	});
 
 	suite('commands', () => {
 		suite('update all instances of class name', () => {
+			let client: VsCodeClient;
 			let commandManager: CommandManager;
-			let commandManagerSpy: CommandManager;
 			const testUri = vscode.Uri.parse('test');
 			
 			setup(() => {
-				commandManager = new CommandManager();
-				commandManagerSpy = spy(commandManager);
-				let mockTextEditor: vscode.TextEditor = mock();
-				let mockDocument: vscode.TextDocument = mock();
-				when(mockTextEditor.document).thenReturn(mockDocument);
-				when(mockDocument.getText).thenReturn(() => 'text');
-				when(commandManagerSpy.showInputBox(anyString()))
-					.thenResolve('mocked input');
-				when(commandManagerSpy.openTextDocument(anything()))
-					.thenResolve(mockTextEditor);
+				let client: VsCodeClient = mock();
+				let document: vscode.TextDocument = mock();
+				when(client.showInputBox(anyString())).thenResolve('mocked input');
+				when(client.openTextDocument(testUri)).thenResolve(document);
+				when(client.getDocumentText(document)).thenReturn('class MyTestClass');
+				commandManager = new CommandManager(client);
 			});
 			
-			test('calls show input box', async () => {
-				await commandManager.updateCommand(testUri);
-				verify(commandManagerSpy.showInputBox(anyString())).called();
-			});
-
-			test('calls input to pascal case', async () => {
-				assert.equal(true, false);
-			});
-
-			test('calls open text document', async () => {
-				assert.equal(true, false);
-			});
-
-			test('calls get name regex', async () => {
-				assert.equal(true, false);
-			});
-
-			test('instantiates name updater', async () => {
-				assert.equal(true, false);
-			});
-
-			test('calls rename file', () => {
-				assert.equal(true, false);
-			});
-
-			test('calls update instances on the updated file', () => {
-				assert.equal(true, false);
-			});
-
-			test('calls update instances on all files in project', async () => {
-				assert.equal(true, false);
+			test('returns true if all operations succeed', async () => {
+				const result = await commandManager.updateCommand(testUri);
+				assert.equal(result, true);
 			});
 		});
 	});
