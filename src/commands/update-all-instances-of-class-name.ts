@@ -2,12 +2,12 @@ import * as vscode from 'vscode';
 import { inputToPascalCase } from '../utils/input-to-pascal-case';
 import { getExcludedFolders } from '../utils/get-excluded-folders';
 import { NameUpdater } from '../services/name-updater';
-import { VsCodeClient } from '../services/vscode-client';
+import { IVsCodeClient } from '../services/vscode-client';
 
 export class CommandManager {
-  private client: VsCodeClient;
+  private client: IVsCodeClient;
 
-  constructor(client: VsCodeClient) {
+  constructor(client: IVsCodeClient) {
     this.client = client;
   }
 
@@ -16,8 +16,6 @@ export class CommandManager {
     if (!input) {
       return false;
     }
-
-    console.log(`input is ${input}`);
 
     const newNamePascal = inputToPascalCase(input);
 

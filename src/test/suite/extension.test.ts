@@ -5,7 +5,7 @@ import { anyOfClass, anyString, anything, instance, mock, spy, verify, when } fr
 import { CommandManager } from '../../commands/update-all-instances-of-class-name';
 import { Uri } from 'vscode';
 import { setup } from 'mocha';
-import { VsCodeClient } from '../../services/vscode-client';
+import { IVsCodeClient, VsCodeClient } from '../../services/vscode-client';
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
 
@@ -23,20 +23,18 @@ suite('Extension Test Suite', () => {
 
 	suite('commands', () => {
 		suite('update all instances of class name', () => {
-			let client: VsCodeClient;
+			let mockClient: IVsCodeClient = mock(VsCodeClient);
 			let commandManager: CommandManager;
 			const testUri = vscode.Uri.parse('test');
-			
-			setup(() => {
-				let client: VsCodeClient = mock();
-				let document: vscode.TextDocument = mock();
-				when(client.showInputBox(anyString())).thenResolve('mocked input');
-				when(client.openTextDocument(testUri)).thenResolve(document);
-				when(client.getDocumentText(document)).thenReturn('class MyTestClass');
-				commandManager = new CommandManager(client);
-			});
-			
-			test('returns true if all operations succeed', async () => {
+			mockClient = mock(VsCodeClient);
+			let document: vscode.TextDocument = mock();
+			when(mockClient.showInputBox('Enter new class name')).thenResolve('mocked input');
+			when(mockClient.openTextDocument(testUri)).thenResolve(document);
+			when(mockClient.getDocumentText(document)).thenReturn('class MyTestClass');
+			let client = instance(mockClient);
+			commandManager = new CommandManager(client);
+
+			test('returns true if all operations succeed', async () => {		
 				const result = await commandManager.updateCommand(testUri);
 				assert.equal(result, true);
 			});
