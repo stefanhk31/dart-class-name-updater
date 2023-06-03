@@ -1,11 +1,10 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
-import { anyOfClass, anyString, anything, instance, mock, spy, verify, when } from 'ts-mockito';
+import { instance, mock, when } from 'ts-mockito';
 import { CommandManager } from '../../commands/update-all-instances-of-class-name';
-import { Uri } from 'vscode';
-import { setup } from 'mocha';
 import { IVsCodeClient, VsCodeClient } from '../../services/vscode-client';
+
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
 
