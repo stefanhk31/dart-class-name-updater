@@ -48,7 +48,13 @@ export class MockTextDocument implements vscode.TextDocument {
         throw new Error('Method not implemented.');
     }
     getText(range?: vscode.Range | undefined): string {
-        throw new Error('Method not implemented.');
+        return `
+         class MyTestClass {
+            const MyTestClass({required String myTestClassId});
+
+            final String myTestClassId;
+         }
+        `;
     }
     getWordRangeAtPosition(position: vscode.Position, regex?: RegExp | undefined): vscode.Range | undefined {
         throw new Error('Method not implemented.');

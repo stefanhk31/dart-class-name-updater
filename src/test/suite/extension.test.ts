@@ -4,6 +4,7 @@ import * as extension from '../../extension';
 import { instance, mock, when } from 'ts-mockito';
 import { CommandManager } from '../../commands/update-all-instances-of-class-name';
 import { IVsCodeClient, VsCodeClient } from '../../services/vscode-client';
+import { MockTextDocument } from '../fixtures/mock-text-document';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -24,12 +25,12 @@ suite('Extension Test Suite', () => {
 		suite('update all instances of class name', () => {
 			let mockClient: IVsCodeClient = mock(VsCodeClient);
 			let commandManager: CommandManager;
-			const testUri = vscode.Uri.parse('test');
+			const testFilePath = 'my_test_class.dart';
+			const testUri = vscode.Uri.parse(testFilePath);
 			mockClient = mock(VsCodeClient);
-			let document: vscode.TextDocument = mock();
-			when(mockClient.showInputBox('Enter new class name')).thenResolve('mocked input');
+			let document = new MockTextDocument(testUri, testFilePath);
+			when(mockClient.showInputBox('Enter new class name')).thenResolve('my new test class');
 			when(mockClient.openTextDocument(testUri)).thenResolve(document);
-			when(mockClient.getDocumentText(document)).thenReturn('class MyTestClass');
 			let client = instance(mockClient);
 			commandManager = new CommandManager(client);
 

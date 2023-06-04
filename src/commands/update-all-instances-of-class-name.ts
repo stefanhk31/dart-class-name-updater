@@ -24,7 +24,7 @@ export class CommandManager {
       return false;
     }
 
-    const currentText = this.client.getDocumentText(document);
+    const currentText = document.getText();
     const classNameRegExp = /class\s+(\w+)/;
     const match = classNameRegExp.exec(currentText);
 
