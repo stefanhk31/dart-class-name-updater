@@ -37,7 +37,8 @@ export class NameUpdater {
     : Promise<boolean> {
         const pascalRegex = new RegExp(`(${this.casing.pascal(this.className)})`, 'g');
         const snakeRegex = new RegExp(`(${this.casing.snake(this.className)})`, 'g');
-        const fileContents = (await this.client.readFile(uri)).toString();
+        const bufferContents = await this.client.readFile(uri);
+        const fileContents = bufferContents.toString();
 
         const newContents = fileContents.replace(
             pascalRegex, (_) => this.casing.pascal(this.newClassName)

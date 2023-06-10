@@ -29,13 +29,14 @@ suite('Extension Test Suite', () => {
 			const testUri = vscode.Uri.parse(testFilePath);
 			mockClient = mock(VsCodeClient);
 			let document = new MockTextDocument(testUri, testFilePath);
+			let contents = document.getText();
 			when(mockClient.showInputBox('Enter new class name')).thenResolve('my new test class');
 			when(mockClient.openTextDocument(testUri)).thenResolve(document);
 			when(mockClient.createUriFromFile(anyString())).thenReturn(testUri);
 			when(mockClient.renameFile(anyString(), anyString()))
 			  .thenResolve(vscode.Uri.parse('my_new_test_class.dart'));
-			//TODO: mock readFile and writeFile
-			when(mockClient.readFile(testUri)).thenResolve();
+			when(mockClient.readFile(testUri)).thenResolve(Buffer.from(contents));
+			when(mockClient.writeFile(testUri, Buffer.from(contents))).thenResolve();
 			let client = instance(mockClient);
 			commandManager = new CommandManager(client);
 
