@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
-import { instance, mock, when } from 'ts-mockito';
+import { anyOfClass, anyString, instance, mock, when } from 'ts-mockito';
 import { CommandManager } from '../../commands/update-all-instances-of-class-name';
 import { IVsCodeClient, VsCodeClient } from '../../services/vscode-client';
 import { MockTextDocument } from '../fixtures/mock-text-document';
@@ -31,6 +31,11 @@ suite('Extension Test Suite', () => {
 			let document = new MockTextDocument(testUri, testFilePath);
 			when(mockClient.showInputBox('Enter new class name')).thenResolve('my new test class');
 			when(mockClient.openTextDocument(testUri)).thenResolve(document);
+			when(mockClient.createUriFromFile(anyString())).thenReturn(testUri);
+			when(mockClient.renameFile(anyString(), anyString()))
+			  .thenResolve(vscode.Uri.parse('my_new_test_class.dart'));
+			//TODO: mock readFile and writeFile
+			when(mockClient.readFile(testUri)).thenResolve();
 			let client = instance(mockClient);
 			commandManager = new CommandManager(client);
 

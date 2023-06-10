@@ -7,7 +7,9 @@ import { IVsCodeClient } from '../services/vscode-client';
 export class CommandManager {
   private client: IVsCodeClient;
 
-  constructor(client: IVsCodeClient) {
+  constructor(
+    client: IVsCodeClient,
+  ) {
     this.client = client;
   }
 
@@ -34,7 +36,7 @@ export class CommandManager {
   
     const currentClassName = match[1];
     const currentUri = document.uri;
-    const updater = new NameUpdater(currentUri, currentClassName, newNamePascal);
+    const updater = new NameUpdater(this.client, currentUri, currentClassName, newNamePascal);
 
     const newUri = await updater.renameFile();
     await updater.updateInstances(newUri);
