@@ -6,8 +6,8 @@ export interface IVsCodeClient {
     getDocumentText(document: vscode.TextDocument): string;
     createUriFromFile(path: string): vscode.Uri;
     renameFile(uri: vscode.Uri, newUri: vscode.Uri): Promise<vscode.Uri>;
-    readFile(uri: vscode.Uri): Promise<Uint8Array>;
-    writeFile(uri: vscode.Uri, content: Uint8Array): Promise<void>;
+    readFile(uri: vscode.Uri): Promise<String>;
+    writeFile(uri: vscode.Uri, content: String): Promise<void>;
 }   
 
 export class VsCodeClient implements IVsCodeClient {
@@ -32,11 +32,11 @@ export class VsCodeClient implements IVsCodeClient {
         return newUri;
     }
 
-    public async readFile(uri: vscode.Uri): Promise<Uint8Array> {
-        return await vscode.workspace.fs.readFile(uri);
+    public async readFile(uri: vscode.Uri): Promise<String> {
+        return (await (vscode.workspace.fs.readFile(uri))).toString();
     }
 
-    public async writeFile(uri: vscode.Uri, content: Uint8Array): Promise<void> {
-        vscode.workspace.fs.writeFile(uri, content);
+    public async writeFile(uri: vscode.Uri, content: String): Promise<void> {
+        vscode.workspace.fs.writeFile(uri, Buffer.from(content));
     }
 } 

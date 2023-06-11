@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { commands, ExtensionContext, } from 'vscode';
-import { CommandManager } from './commands/update-all-instances-of-class-name';
+import { CommandManager } from './commands/command-manager';
 import { VsCodeClient } from './services/vscode-client';
 
 export function activate(context: ExtensionContext) {

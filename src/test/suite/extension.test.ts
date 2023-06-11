@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
-import { anyOfClass, anyString, instance, mock, when } from 'ts-mockito';
-import { CommandManager } from '../../commands/update-all-instances-of-class-name';
+import { anyOfClass, anyString, anything, instance, mock, when } from 'ts-mockito';
+import { CommandManager } from '../../commands/command-manager';
 import { IVsCodeClient, VsCodeClient } from '../../services/vscode-client';
 import { MockTextDocument } from '../fixtures/mock-text-document';
 
@@ -27,16 +27,17 @@ suite('Extension Test Suite', () => {
 			let commandManager: CommandManager;
 			const testFilePath = 'my_test_class.dart';
 			const testUri = vscode.Uri.parse(testFilePath);
+			const newUri = vscode.Uri.parse('my_new_test_class.dart');
 			mockClient = mock(VsCodeClient);
 			let document = new MockTextDocument(testUri, testFilePath);
 			let contents = document.getText();
 			when(mockClient.showInputBox('Enter new class name')).thenResolve('my new test class');
 			when(mockClient.openTextDocument(testUri)).thenResolve(document);
 			when(mockClient.createUriFromFile(anyString())).thenReturn(testUri);
-			when(mockClient.renameFile(anyString(), anyString()))
-			  .thenResolve(vscode.Uri.parse('my_new_test_class.dart'));
-			when(mockClient.readFile(testUri)).thenResolve(Buffer.from(contents));
-			when(mockClient.writeFile(testUri, Buffer.from(contents))).thenResolve();
+			when(mockClient.renameFile(anything(), anything()))
+			  .thenResolve(newUri);
+			when(mockClient.readFile(newUri)).thenResolve(contents);
+			when(mockClient.writeFile(newUri, contents)).thenResolve();
 			let client = instance(mockClient);
 			commandManager = new CommandManager(client);
 
