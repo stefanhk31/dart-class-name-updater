@@ -5,6 +5,8 @@ import { anyOfClass, anyString, anything, instance, mock, when } from 'ts-mockit
 import { CommandManager } from '../../commands/command-manager';
 import { IVsCodeClient, VsCodeClient } from '../../services/vscode-client';
 import { MockTextDocument } from '../fixtures/mock-text-document';
+import { filePath, newFilePath, newUri, uri } from '../fixtures/constants';
+import { mockVsCodeClient } from '../fixtures/mock-vs-code-client';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -23,26 +25,10 @@ suite('Extension Test Suite', () => {
 
 	suite('commands', () => {
 		suite('update all instances of class name', () => {
-			let mockClient: IVsCodeClient = mock(VsCodeClient);
-			let commandManager: CommandManager;
-			const testFilePath = 'my_test_class.dart';
-			const testUri = vscode.Uri.parse(testFilePath);
-			const newUri = vscode.Uri.parse('my_new_test_class.dart');
-			mockClient = mock(VsCodeClient);
-			let document = new MockTextDocument(testUri, testFilePath);
-			let contents = document.getText();
-			when(mockClient.showInputBox('Enter new class name')).thenResolve('my new test class');
-			when(mockClient.openTextDocument(testUri)).thenResolve(document);
-			when(mockClient.createUriFromFile(anyString())).thenReturn(testUri);
-			when(mockClient.renameFile(anything(), anything()))
-			  .thenResolve(newUri);
-			when(mockClient.readFile(newUri)).thenResolve(contents);
-			when(mockClient.writeFile(newUri, contents)).thenResolve();
-			let client = instance(mockClient);
-			commandManager = new CommandManager(client);
+			let commandManager = new CommandManager( mockVsCodeClient({}));
 
 			test('returns true if all operations succeed', async () => {		
-				const result = await commandManager.updateCommand(testUri);
+				const result = await commandManager.updateCommand(uri);
 				assert.equal(result, true);
 			});
 		});
