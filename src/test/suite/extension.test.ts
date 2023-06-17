@@ -23,13 +23,31 @@ suite('Extension Test Suite', () => {
 		});
 	});
 
-	suite('commands', () => {
+	suite('command manager', () => {
 		suite('update all instances of class name', () => {
-			let commandManager = new CommandManager( mockVsCodeClient({}));
+			let commandManager = new CommandManager(mockVsCodeClient({}));
 
 			test('returns true if all operations succeed', async () => {		
 				const result = await commandManager.updateCommand(uri);
 				assert.equal(result, true);
+			});
+
+			test('returns false if input is empty', async () => {		
+				commandManager = new CommandManager(mockVsCodeClient({showInputBoxOverride: ''}));
+				const result = await commandManager.updateCommand(uri);
+				assert.equal(result, false);
+			});
+
+			test('returns false if open text document throws error', async () => {		
+				commandManager = new CommandManager(mockVsCodeClient({openTextDocumentOverride: Error('oops')}));
+				const result = await commandManager.updateCommand(uri);
+				assert.equal(result, false);
+			});
+
+			test('returns false if document text does not match class regex', async () => {		
+				commandManager = new CommandManager(mockVsCodeClient({getDocumentTextOverride: ''}));
+				const result = await commandManager.updateCommand(uri);
+				assert.equal(result, false);
 			});
 		});
 	});

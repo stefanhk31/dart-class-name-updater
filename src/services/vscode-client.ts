@@ -16,7 +16,12 @@ export class VsCodeClient implements IVsCodeClient {
     }
 
     public async openTextDocument(uri: vscode.Uri): Promise<vscode.TextDocument | undefined> {
-        return await vscode.workspace.openTextDocument(uri);
+        const document = await vscode.workspace.openTextDocument(uri);
+        if (!document) {
+            throw Error('Text document not found.');
+        }
+
+        return document;
     }
 
     public getDocumentText(document: vscode.TextDocument): string {

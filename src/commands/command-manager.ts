@@ -16,18 +16,22 @@ export class CommandManager {
 
   public async updateCommand(uri: vscode.Uri): Promise<boolean> {
     const input = await this.client.showInputBox('Enter new class name');
+    //TODO (#31): replace false returns with error messages
     if (!input) {
       return false;
     }
 
     const newNamePascal = inputToPascalCase(input);
 
-    const document = await this.client.openTextDocument(uri);
-    if (!document) {
+    let document: vscode.TextDocument | undefined;
+    try {
+       document = await this.client.openTextDocument(uri);
+    } catch (e) {
+      console.log(e);
       return false;
     }
 
-    const currentText = document.getText();
+    const currentText = this.client.getDocumentText(document!);
     const classNameRegExp = /class\s+(\w+)/;
     const match = classNameRegExp.exec(currentText);
 
