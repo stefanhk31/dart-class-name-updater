@@ -10,6 +10,7 @@ export interface IVsCodeClient {
     writeFile(uri: vscode.Uri, content: String): Promise<void>;
 }   
 
+// TODO (#31): all these should throw when they fail
 export class VsCodeClient implements IVsCodeClient {
     public async showInputBox(prompt: string): Promise<string | undefined> {
         return await vscode.window.showInputBox({ prompt: prompt });
