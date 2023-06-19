@@ -9,7 +9,8 @@ import { IVsCodeClientOverrides } from './vs-code-client-overrides';
 export const mockVsCodeClient = 
 ({
   showInputBoxOverride = 'my new test class', 
-  openTextDocumentOverride = document, 
+  openTextDocumentOverride = document,
+  getDocumentTextOverride = contents, 
   createUriFromFileOverride = uri, 
   renameFileOverride = newUri, 
   readFileOverride = contents,
@@ -27,6 +28,12 @@ export const mockVsCodeClient =
         when(mockClient.openTextDocument(uri)).thenThrow(openTextDocumentOverride);
     } else {
         when(mockClient.openTextDocument(uri)).thenResolve(openTextDocumentOverride);
+    }
+
+    if (getDocumentTextOverride instanceof(Error)) {
+        when(mockClient.getDocumentText(document)).thenThrow(getDocumentTextOverride);
+    } else {
+        when(mockClient.getDocumentText(document)).thenReturn(getDocumentTextOverride);
     }
 
     if (createUriFromFileOverride instanceof(Error)) {

@@ -28,9 +28,10 @@ suite('Extension Test Suite', () => {
 
 	suite('command manager', () => {
 		suite('update all instances of class name', () => {
-			let commandManager = new CommandManager(mockVsCodeClient({}));
+			let commandManager: CommandManager;
 
 			test('returns true if all operations succeed', async () => {		
+				commandManager = new CommandManager(mockVsCodeClient({}));
 				const result = await commandManager.updateCommand(uri);
 				assert.equal(result, true);
 			});
