@@ -1,15 +1,12 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
-import { anyOfClass, anyString, anything, instance, mock, notNull, when } from 'ts-mockito';
+import { instance, mock, when } from 'ts-mockito';
 import { CommandManager } from '../../commands/command-manager';
-import { IVsCodeClient, VsCodeClient } from '../../services/vscode-client';
-import { MockTextDocument } from '../fixtures/mock-text-document';
-import { filePath, newFilePath, newUri, uri } from '../fixtures/constants';
+import { uri } from '../fixtures/constants';
 import { mockVsCodeClient } from '../fixtures/mock-vs-code-client';
 import { CaseObject } from '../../utils/case-object';
 import { inputToPascalCase } from '../../utils/input-to-pascal-case';
-import { existsSync } from 'fs';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -112,12 +109,16 @@ suite('Extension Test Suite', () => {
 			});
 		});
 
-		suite('rename file', () => {
-
+		suite('rename file',  () => {
+			test('renames file', async () => {		
+				assert.equal(true, false);		
+			});
 		});
 
 		suite('update all instances', () => {
-
+			test('updates all instances of name in project', async () => {
+				assert.equal(true, false);
+			});
 		});
 
 	});
