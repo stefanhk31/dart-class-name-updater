@@ -1,10 +1,13 @@
 import * as vscode from 'vscode';
 import { commands, ExtensionContext, } from 'vscode';
-import { updateAllInstancesOfClassName } from './commands/update-all-instances-of-class-name';
+import { CommandManager } from './commands/command-manager';
+import { VsCodeClient } from './services/vscode-client';
 
 export function activate(context: ExtensionContext) {
   const updateAllInstancesOfClassNameCommand = commands.registerCommand('dart-class-name-updater.updateAllInstancesOfClass', (uri: vscode.Uri) => {
-      updateAllInstancesOfClassName(uri);    
+    const client = new VsCodeClient();
+    const commandManager = new CommandManager(client);
+    commandManager.updateCommand(uri);
   });
   context.subscriptions.push(updateAllInstancesOfClassNameCommand);
 }
