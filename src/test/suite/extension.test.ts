@@ -5,8 +5,8 @@ import { instance, mock, when } from 'ts-mockito';
 import { CommandManager } from '../../commands/command-manager';
 import { uri } from '../fixtures/constants';
 import { mockVsCodeClient } from '../fixtures/mock-vs-code-client';
-import { CaseObject } from '../../utils/case-object';
 import { inputToPascalCase } from '../../utils/input-to-pascal-case';
+import { getExcludedFolders } from '../../utils/get-excluded-folders';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -54,30 +54,9 @@ suite('Extension Test Suite', () => {
 	});
 
 	suite('utils', () => {
-		suite('case object', () => {
-			test('can implement case object interface', async () => {
-				const impl: CaseObject = {
-					camel: (_) => '',
-					capital:  (_) => '',
-					constant: (_) => '',
-					header: (_) => '',
-					kebab: (_) => '',
-					lower: (_) => '',
-					pascal: (_) => '',
-					sentence: (_) => '',
-					snake: (_) => '',
-					title: (_) => '',
-					upper: (_) => '',
-					of: (_) => ''
-				};
-				assert.equal(!impl, false);
-			});
-		});
-
-
 		suite('get excluded folders', () => {
 			test('can get excluded folders', async () => {
-				assert.equal(true, false);
+				assert.equal(getExcludedFolders(), !false);
 			});
 
 			test('excludes folders in .gitignore file', async () => {
