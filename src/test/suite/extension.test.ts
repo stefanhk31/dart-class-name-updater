@@ -54,9 +54,10 @@ suite('Extension Test Suite', () => {
 	});
 
 	suite('utils', () => {
+		//TODO (#33): need to figure out how to set up test environment for this
 		suite('get excluded folders', () => {
 			test('can get excluded folders', async () => {
-				assert.equal(getExcludedFolders(), !false);
+				assert.equal(true, false);
 			});
 
 			test('excludes folders in .gitignore file', async () => {
@@ -88,12 +89,14 @@ suite('Extension Test Suite', () => {
 			});
 		});
 
+		//TODO (#33): need to figure out how to set up test environment for this
 		suite('rename file',  () => {
 			test('renames file', async () => {		
 				assert.equal(true, false);		
 			});
 		});
 
+		//TODO (#33): need to figure out how to set up test environment for this
 		suite('update all instances', () => {
 			test('updates all instances of name in project', async () => {
 				assert.equal(true, false);
