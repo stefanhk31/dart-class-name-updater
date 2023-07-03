@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as extension from '../../extension';
-import { instance, mock, when } from 'ts-mockito';
+import { anyString, instance, mock, verify, when } from 'ts-mockito';
 import { CommandManager } from '../../commands/command-manager';
 import { uri } from '../fixtures/constants';
 import { mockVsCodeClient } from '../fixtures/mock-vs-code-client';
@@ -28,27 +28,64 @@ suite('Extension Test Suite', () => {
 			let commandManager: CommandManager;
 
 			test('returns true if all operations succeed', async () => {		
-				commandManager = new CommandManager(mockVsCodeClient({}));
+				commandManager = new CommandManager(instance(mockVsCodeClient({})));
 				const result = await commandManager.updateCommand(uri);
 				assert.equal(result, true);
 			});
 
 			test('returns false if input is empty', async () => {		
-				commandManager = new CommandManager(mockVsCodeClient({showInputBoxOverride: ''}));
+				commandManager = new CommandManager(instance(mockVsCodeClient({showInputBoxOverride: ''})));
 				const result = await commandManager.updateCommand(uri);
 				assert.equal(result, false);
 			});
 
 			test('returns false if open text document throws error', async () => {		
-				commandManager = new CommandManager(mockVsCodeClient({openTextDocumentOverride: Error('oops')}));
+				commandManager = new CommandManager(instance(mockVsCodeClient({openTextDocumentOverride: Error('oops')})));
+				const result = await commandManager.updateCommand(uri);
+				assert.equal(result, false);
+			});
+
+			test('returns false if get document text throws error', async () => {		
+				commandManager = new CommandManager(instance(mockVsCodeClient({getDocumentTextOverride: Error('oops')})));
+				const result = await commandManager.updateCommand(uri);
+				assert.equal(result, false);
+			});
+
+			test('returns false if create uri from file throws error', async () => {		
+				commandManager = new CommandManager(instance(mockVsCodeClient({createUriFromFileOverride: Error('oops')})));
+				const result = await commandManager.updateCommand(uri);
+				assert.equal(result, false);
+			});
+
+			test('returns false if rename file throws error', async () => {		
+				commandManager = new CommandManager(instance(mockVsCodeClient({renameFileOverride: Error('oops')})));
+				const result = await commandManager.updateCommand(uri);
+				assert.equal(result, false);
+			});
+
+			test('returns false if read file throws error', async () => {		
+				commandManager = new CommandManager(instance(mockVsCodeClient({readFileOverride: Error('oops')})));
+				const result = await commandManager.updateCommand(uri);
+				assert.equal(result, false);
+			});
+
+			test('returns false if write file throws error', async () => {		
+				commandManager = new CommandManager(instance(mockVsCodeClient({writeFileOverride: Error('oops')})));
 				const result = await commandManager.updateCommand(uri);
 				assert.equal(result, false);
 			});
 
 			test('returns false if document text does not match class regex', async () => {		
-				commandManager = new CommandManager(mockVsCodeClient({getDocumentTextOverride: ''}));
+				commandManager = new CommandManager(instance(mockVsCodeClient({getDocumentTextOverride: ''})));
 				const result = await commandManager.updateCommand(uri);
 				assert.equal(result, false);
+			});
+
+			test('displays error message when error is thrown', async () => {
+				const client = mockVsCodeClient({showInputBoxOverride: Error('oops')});
+				commandManager = new CommandManager(instance(client));
+				await commandManager.updateCommand(uri);
+				verify(client.showErrorMessage('oops')).once();
 			});
 		});
 	});
