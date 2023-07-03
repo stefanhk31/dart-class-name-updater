@@ -114,10 +114,12 @@ suite('Extension Test Suite', () => {
 				assert.strictEqual(inputToPascalCase('myTestInput'), 'MyTestInput');
 			});
 
-			// TODO (#32): this is failing because it's currently unsupported.
-			// Let's get it passing.
 			test('can convert input snake case to pascal case', async () => {
 				assert.strictEqual(inputToPascalCase('my_test_input'), 'MyTestInput');
+			});
+
+			test('can convert input screaming snake case to pascal case', async () => {
+				assert.strictEqual(inputToPascalCase('MY_TEST_INPUT'), 'MyTestInput');
 			});
 
 			test('preserves pascal case when input is pascal', async () => {
