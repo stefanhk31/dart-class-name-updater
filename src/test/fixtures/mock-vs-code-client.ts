@@ -57,10 +57,12 @@ export const mockVsCodeClient =
     }
 
     if (writeFileOverride instanceof(Error)) {
-        when(mockClient.writeFile(newUri, contents)).thenThrow(writeFileOverride);
+        when(mockClient.writeFile(newUri, anything())).thenThrow(writeFileOverride);
     } else {
-        when(mockClient.writeFile(newUri, contents)).thenResolve();
+        when(mockClient.writeFile(newUri, anything())).thenResolve();
     }
 
-    return instance(mockClient);
+    when(mockClient.showErrorMessage(anyString())).thenResolve();
+
+    return mockClient;
 };
