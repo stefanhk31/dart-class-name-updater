@@ -32,12 +32,6 @@ suite('Extension Test Suite', () => {
 				assert.strictEqual(result, true);
 			});
 
-			test('returns false if input is empty', async () => {		
-				commandManager = new CommandManager(instance(mockVsCodeClient({showInputBoxOverride: ''})));
-				const result = await commandManager.updateCommand(uri);
-				assert.strictEqual(result, false);
-			});
-
 			test('returns false if open text document throws error', async () => {		
 				commandManager = new CommandManager(instance(mockVsCodeClient({openTextDocumentOverride: Error('oops')})));
 				const result = await commandManager.updateCommand(uri);
@@ -46,6 +40,18 @@ suite('Extension Test Suite', () => {
 
 			test('returns false if get document text throws error', async () => {		
 				commandManager = new CommandManager(instance(mockVsCodeClient({getDocumentTextOverride: Error('oops')})));
+				const result = await commandManager.updateCommand(uri);
+				assert.strictEqual(result, false);
+			});
+
+			test('returns false if input is empty', async () => {		
+				commandManager = new CommandManager(instance(mockVsCodeClient({showInputBoxOverride: ''})));
+				const result = await commandManager.updateCommand(uri);
+				assert.strictEqual(result, false);
+			});
+
+			test('returns false if no class name is selected', async () => {		
+				commandManager = new CommandManager(instance(mockVsCodeClient({showQuickPickOverride: ''})));
 				const result = await commandManager.updateCommand(uri);
 				assert.strictEqual(result, false);
 			});
