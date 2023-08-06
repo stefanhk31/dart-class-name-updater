@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 export interface IVsCodeClient {
     showInputBox(prompt: string): Promise<string | undefined>;
+    showQuickPick(items: string[], placeholder: string): Promise<string | undefined>;
     openTextDocument(uri: vscode.Uri): Promise<vscode.TextDocument>;
     getDocumentText(document: vscode.TextDocument): string;
     createUriFromFile(path: string): vscode.Uri;
@@ -13,8 +14,14 @@ export interface IVsCodeClient {
 
 export class VsCodeClient implements IVsCodeClient {
 
-    public async showInputBox(prompt: string): Promise<string | undefined> {
+    public async showInputBox(prompt: string,): Promise<string | undefined> {
         return await vscode.window.showInputBox({ prompt: prompt });
+    }
+
+    public async showQuickPick(items: string[], placeholder: string): Promise<string | undefined> {
+        return await vscode.window.showQuickPick(items, {
+            placeHolder: placeholder,
+        });
     }
 
     public async openTextDocument(uri: vscode.Uri): Promise<vscode.TextDocument> {
