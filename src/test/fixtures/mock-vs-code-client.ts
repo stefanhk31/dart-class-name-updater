@@ -9,6 +9,7 @@ import { IVsCodeClientOverrides } from './vs-code-client-overrides';
 export const mockVsCodeClient = 
 ({
   showInputBoxOverride = 'my new test class', 
+  showQuickPickOverride = 'my test class',
   openTextDocumentOverride = document,
   getDocumentTextOverride = contents, 
   createUriFromFileOverride = uri, 
@@ -22,6 +23,12 @@ export const mockVsCodeClient =
         when(mockClient.showInputBox('Enter new class name')).thenThrow(showInputBoxOverride);
     } else {
         when(mockClient.showInputBox('Enter new class name')).thenResolve(showInputBoxOverride);
+    }
+
+    if (showQuickPickOverride instanceof(Error)) {
+        when(mockClient.showQuickPick(anything(), 'Select which class to rename')).thenThrow(showQuickPickOverride);
+    } else {
+        when(mockClient.showQuickPick(anything(), 'Select which class to rename')).thenResolve(showQuickPickOverride);
     }
 
     if (openTextDocumentOverride instanceof(Error)) {

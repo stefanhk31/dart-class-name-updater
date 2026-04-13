@@ -15,7 +15,31 @@ export class CommandManager {
   }
 
   public async updateCommand(uri: vscode.Uri): Promise<boolean> {
+
     try {
+      const document = await this.client.openTextDocument(uri);
+      const currentText = this.client.getDocumentText(document);
+      const classNameRegExp = /class\s+([A-Za-z_]\w*)/g;
+
+      const classNames = [] as string[];
+      let match;
+
+      while ((match = classNameRegExp.exec(currentText)) !== null && !classNames.includes(match[1])) {
+        classNames.push(match[1]);
+      }
+      
+      classNameRegExp.lastIndex = 0;
+      
+      if (classNames.length === 0) {
+        throw Error('No valid class names found in document.');
+      }
+
+      const currentClassName = await this.client.showQuickPick(classNames, 'Select which class to rename');
+
+      if (!currentClassName) {
+        throw Error('Please select a class name.');
+      }
+
       const input = await this.client.showInputBox('Enter new class name');
 
       if (!input) {
@@ -23,20 +47,13 @@ export class CommandManager {
       }
 
       const newNamePascal = inputToPascalCase(input);
-      const document = await this.client.openTextDocument(uri);
-      const currentText = this.client.getDocumentText(document);
-      const classNameRegExp = /class\s+(\w+)/;
+      const casing = require('case');
 
-      const match = classNameRegExp.exec(currentText);
-
-      if (!match) {
-        throw Error('No valid class name found in document.');
+      if (uri.path.includes(casing.snake(currentClassName))) {
+        const newUri = await renameFile(uri, newNamePascal, this.client);
+        uri = newUri;
       }
-
-      const currentClassName = match[1];
-
-      const newUri = await renameFile(uri, newNamePascal, this.client);
-      await updateAllInstances(newUri, currentClassName, newNamePascal, this.client);
+      await updateAllInstances(uri, currentClassName, newNamePascal, this.client);
 
       const excludedFolders = getExcludedFolders().join(',');
       const allDartFiles = await vscode.workspace.findFiles('**/*.dart', excludedFolders);
